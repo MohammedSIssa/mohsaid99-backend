@@ -50,6 +50,16 @@ app.post("/log", async (req, res) => {
   }
 });
 
+app.get("/log", async (req, res) => {
+    try {
+        const results = await db.query("SELECT * FROM logs ORDER BY id DESC");
+        const { rows } = results;
+        res.status(200).json(rows);
+    } catch {
+        res.status(500).json({ error: "Internal Server Error" })
+    }
+})
+
 app.get("/health", (req,res) => {
     res.status(200).json({ message: "Pulsing"})
 })
