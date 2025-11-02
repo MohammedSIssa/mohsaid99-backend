@@ -50,13 +50,13 @@ app.post("/log", async (req, res) => {
   }
 });
 
-app.get("/log", async (req, res) => {
+app.get("/logs", async (req, res) => {
     try {
         const results = await db.query("SELECT * FROM logs ORDER BY id DESC");
         const { rows } = results;
-        res.status(200).json(rows);
+        return res.status(200).json(rows);
     } catch {
-        res.status(500).json({ error: "Internal Server Error" })
+        return res.status(500).json({ error: "Internal Server Error" })
     }
 })
 
