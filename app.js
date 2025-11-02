@@ -50,6 +50,10 @@ app.post("/log", async (req, res) => {
   }
 });
 
+app.get("/health", (req,res) => {
+    res.status(200).json({ message: "Pulsing"})
+})
+
 app.use("/", storyRouter);
 app.use("/", postRouter);
 app.use("/", typeRouter);
