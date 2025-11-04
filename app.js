@@ -9,6 +9,7 @@ const db = require("./db");
 const allowedOrigins = [
   process.env.LOCALHOST_ORIGIN,
   process.env.GITHUB_PAGES_ORIGIN,
+  "https://dashboard.uptimerobot.com"
 ];
 
 const app = express();
