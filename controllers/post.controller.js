@@ -18,8 +18,8 @@ async function getPostById(req, res) {
 
 async function updatePostByID(req, res) {
   const { postId } = req.params;
-  const api_key = req.query.api_key ?? null;
 
+  const api_key = req.query.api_key ?? null;
   if (api_key && api_key === process.env.API_KEY) {
     const { title, body, storyid, images, type, special, secret } = req.body;
     const data = { title, body, storyid, images, type, special, secret };
