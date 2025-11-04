@@ -2,10 +2,29 @@ const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 
+require("dotenv").config();
+
 const db = require("./db");
 
+const allowedOrigins = [
+  process.env.LOCALHOST_ORIGIN,
+  process.env.GITHUB_PAGES_ORIGIN,
+];
+
 const app = express();
-app.use(cors("*"));
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -51,18 +70,18 @@ app.post("/log", async (req, res) => {
 });
 
 app.get("/logs", async (req, res) => {
-    try {
-        const results = await db.query("SELECT * FROM logs ORDER BY id DESC");
-        const { rows } = results;
-        return res.status(200).json(rows);
-    } catch {
-        return res.status(500).json({ error: "Internal Server Error" })
-    }
-})
+  try {
+    const results = await db.query("SELECT * FROM logs ORDER BY id DESC");
+    const { rows } = results;
+    return res.status(200).json(rows);
+  } catch {
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
-app.get("/health", (req,res) => {
-    res.status(200).json({ message: "Pulsing"})
-})
+app.get("/health", (req, res) => {
+  res.status(200).json({ message: "Pulsing" });
+});
 
 app.use("/", storyRouter);
 app.use("/", postRouter);
