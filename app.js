@@ -6,26 +6,27 @@ require("dotenv").config();
 
 const db = require("./db");
 
-const allowedOrigins = [
-  process.env.LOCALHOST_ORIGIN,
-  process.env.GITHUB_PAGES_ORIGIN,
-  "https://dashboard.uptimerobot.com"
-];
+//const allowedOrigins = [
+//  process.env.LOCALHOST_ORIGIN,
+//  process.env.GITHUB_PAGES_ORIGIN,
+//  "https://dashboard.uptimerobot.com"
+//];
 
 const app = express();
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-  })
+//app.use(
+//  cors({
+//    origin: function (origin, callback) {
+//      if (allowedOrigins.includes(origin)) {
+//        callback(null, true);
+//      } else {
+//        callback(new Error("Not allowed by CORS"));
+//      }
+//    },
+//  })
 );
 
+app.use(cors("*"))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
