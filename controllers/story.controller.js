@@ -5,6 +5,7 @@ const redisClient = require("../db/redisCacher");
 
 async function getStoryById(req, res) {
   const { storyId } = req.params;
+  const api_key = req.query.api_key ?? null;
   if (api_key && api_key === process.env.API_KEY) {
     try {
       const results = await db.getStoryById(storyId);
