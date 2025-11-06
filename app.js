@@ -26,7 +26,7 @@ const app = express();
 //  })
 // );
 
-app.use(cors("*"))
+app.use(cors("*"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -73,6 +73,13 @@ app.post("/log", async (req, res) => {
 
 app.get("/logs", async (req, res) => {
   try {
+    const authHeader = req.headers["authorization"];
+    const api_key = authHeader && authHeader.split(" ")[1];
+
+    console.log(req.headers);
+
+    if (!api_key)
+      return res.status(401).json({ error: "Missing or Invalid API Key" });
     const results = await db.query("SELECT * FROM logs ORDER BY id DESC");
     const { rows } = results;
     return res.status(200).json(rows);

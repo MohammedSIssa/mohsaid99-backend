@@ -5,7 +5,11 @@ const redisClient = require("../db/redisCacher");
 
 async function getStoryById(req, res) {
   const { storyId } = req.params;
-  const api_key = req.query.api_key ?? null;
+  const authHeader = req.headers["authorization"];
+  const api_key = authHeader && authHeader.split(" ")[1];
+
+  if (!api_key)
+    return res.status(401).json({ error: "Missing or Invalid API Key" });
   if (api_key && api_key === process.env.API_KEY) {
     try {
       const results = await db.getStoryById(storyId);
@@ -24,7 +28,11 @@ async function getStoryById(req, res) {
 
 async function updateStoryByID(req, res) {
   const { storyId } = req.params;
-  const api_key = req.query.api_key ?? null;
+  const authHeader = req.headers["authorization"];
+  const api_key = authHeader && authHeader.split(" ")[1];
+
+  if (!api_key)
+    return res.status(401).json({ error: "Missing or Invalid API Key" });
   if (api_key && api_key === process.env.API_KEY) {
     const data = {
       title: req.body.title,
@@ -45,8 +53,13 @@ async function updateStoryByID(req, res) {
 
 async function deleteStoryByID(req, res) {
   const { storyId } = req.params;
-  const api_key = req.query.api_key ?? null;
+  const authHeader = req.headers["authorization"];
+  const api_key = authHeader && authHeader.split(" ")[1];
+
+  if (!api_key)
+    return res.status(401).json({ error: "Missing or Invalid API Key" });
   if (api_key && api_key === process.env.API_KEY) {
+
     try {
       const results = await db.getStoryById(storyId);
       const { rows } = results;
