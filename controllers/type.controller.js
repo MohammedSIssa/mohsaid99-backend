@@ -1,27 +1,22 @@
 const db = require("../db/type.query");
 
+const redisClient = require("../db/redisCacher");
+
 async function getAllStoriesWithType(req, res) {
   const storyType = req.params.type + "";
-  if (req.query.count) {
-    try {
-      const count = Number(req.query.count);
-      const result = await db.getStoriesByTypeAndCount(storyType, count);
-
-      const { rows } = result;
-      if (rows.length === 0) {
-        return res.status(404).json({ error: "404 not found" });
-      }
-      return res.status(200).json(rows[0]);
-    } catch (e) {
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  }
 
   try {
     if (["week", "goal", "stat", "special", "blog"].includes(storyType)) {
+      const cached = await redisClient.get(`stories:${storyType}`);
+      if (cached) {
+        console.log("Stories cache hit")
+        return res.status(200).json(JSON.parse(cached));
+      }
+      
       const results = await db.getAllStoriesWithType(storyType);
-
       const { rows } = results;
+
+      await redisClient.set(`stories:${storyType}`, JSON.stringify(rows));
       return res.status(200).json(rows);
     }
   } catch {
@@ -33,10 +28,16 @@ async function getPostsForStoryWithType(req, res) {
   const storyId = Number(req.params.id);
   const type = req.params.type;
   try {
+    const cached = await redisClient.get(`posts:${type}-${storyId}`);
+    if (cached) {
+      console.log("Posts cache hit");
+      return res.status(200).json(JSON.parse(cached));
+    }
+    // console.log("Cache miss");
     const results = await db.getPostsForStoryWithType(type, storyId);
-
     const { rows } = results;
 
+    await redisClient.set(`posts:${type}-${storyId}`, JSON.stringify(rows));
     return res.status(200).json(rows);
   } catch (e) {
     return res.status(500).json({ error: "Internal Server Error!" });
@@ -56,6 +57,8 @@ async function createPostForStoryWithType(req, res) {
   };
   try {
     await db.createPostForStoryWithType(data);
+    const cached = await redisClient.get(`posts:${data.type}-${storyId}`);
+    if (cached) await redisClient.del(`posts:${data.type}-${storyId}`);
     console.log("Added post for", req.body.type, storyId);
     res.status(201).json({ message: "Added post successfully!" });
   } catch (e) {

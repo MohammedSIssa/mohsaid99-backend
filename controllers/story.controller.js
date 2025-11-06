@@ -1,6 +1,8 @@
 require("dotenv").config();
 const db = require("../db/story.query");
 
+const redisClient = require("../db/redisCacher");
+
 async function getStoryById(req, res) {
   const { storyId } = req.params;
   if (api_key && api_key === process.env.API_KEY) {
@@ -45,6 +47,17 @@ async function deleteStoryByID(req, res) {
   const api_key = req.query.api_key ?? null;
   if (api_key && api_key === process.env.API_KEY) {
     try {
+      const results = await db.getStoryById(storyId);
+      const { rows } = results;
+
+      const story = rows[0];
+
+      const cached = await redisClient.get(`stories:${story.type}`);
+      if (cached) {
+        console.log("Removing from cache");
+        await redisClient.del(`stories:${story.type}`);
+        await redisClient.del(`posts:${story.type}-${story.count}`);
+      }
       await db.deleteStoryByID(storyId);
       return res
         .status(200)
