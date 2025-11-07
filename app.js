@@ -1,100 +1,37 @@
-const express = require("express");
-const cors = require("cors");
-const bcrypt = require("bcrypt");
-
 require("dotenv").config();
 
-const db = require("./db");
+const cors = require("cors");
 
-//const allowedOrigins = [
-//  process.env.LOCALHOST_ORIGIN,
-//  process.env.GITHUB_PAGES_ORIGIN,
-//  "https://dashboard.uptimerobot.com"
-//];
-
+const express = require("express");
 const app = express();
-
-//app.use(
-//  cors({
-//    origin: function (origin, callback) {
-//      if (allowedOrigins.includes(origin)) {
-//        callback(null, true);
-//      } else {
-//        callback(new Error("Not allowed by CORS"));
-//      }
-//    },
-//  })
-// );
 
 app.use(cors("*"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// mohsaid99 website routes
 const typeRouter = require("./routes/type.route");
 const postRouter = require("./routes/post.route");
 const storyRouter = require("./routes/story.route");
+const loginRouter = require("./routes/login.route");
+const logsRouter = require("./routes/logs.route");
 
-app.post("/login", async (req, res) => {
-  // Find user in the database
-  const { username, password } = req.body;
-  const { rows } = await db.query("SELECT * FROM users WHERE username = $1", [
-    username,
-  ]);
-  const user = rows[0];
-  if (!user) {
-    return res.status(404).json({ error: "No user was found!" });
-  }
-
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  if (passwordMatch) {
-    // Return the user object to the front-end Context API
-    return res.status(200).json(user);
-  } else {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-});
-
-app.post("/log", async (req, res) => {
-  const { visitedAt, os, url, username } = req.body;
-
-  const details = `${os} - ${visitedAt}`;
-
-  try {
-    await db.query(
-      "INSERT INTO logs (username, details, visited) VALUES ($1, $2, $3)",
-      [username, details, url]
-    );
-
-    return res.status(201).json({ message: "Added log successfully" });
-  } catch {
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-app.get("/logs", async (req, res) => {
-  try {
-    const authHeader = req.headers["authorization"];
-    const api_key = authHeader && authHeader.split(" ")[1];
-
-    console.log(req.headers);
-
-    if (!api_key)
-      return res.status(401).json({ error: "Missing or Invalid API Key" });
-    const results = await db.query("SELECT * FROM logs ORDER BY id DESC");
-    const { rows } = results;
-    return res.status(200).json(rows);
-  } catch {
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+// my social media app routes
+const socialMediaRouter = require("./social-media-app/app");
 
 app.get("/health", (req, res) => {
   res.status(200).json({ message: "Pulsing" });
 });
 
-app.use("/", storyRouter);
-app.use("/", postRouter);
-app.use("/", typeRouter);
+app.use("/mohsaid99", loginRouter);
+app.use("/mohsaid99", storyRouter);
+app.use("/mohsaid99", postRouter);
+app.use("/mohsaid99", logsRouter);
+
+// NOTE TO SELF: always keep tyoe router at the bottom of mohsaid99 routes
+app.use("/mohsaid99", typeRouter);
+
+app.use("/social-media-app", socialMediaRouter);
 
 app.listen(3000, () => {
   console.log("http://localhost:3000");
