@@ -9,10 +9,9 @@ async function getAllStoriesWithType(req, res) {
     if (["week", "goal", "stat", "special", "blog"].includes(storyType)) {
       const cached = await redisClient.get(`stories:${storyType}`);
       if (cached) {
-        console.log("Stories cache hit")
         return res.status(200).json(JSON.parse(cached));
       }
-      
+
       const results = await db.getAllStoriesWithType(storyType);
       const { rows } = results;
 
@@ -68,10 +67,13 @@ async function createPostForStoryWithType(req, res) {
 
 async function updateStoryWithType(req, res) {
   if (req.query.count) {
-    const { title, summary, year, special } = req.body;
+    const { title, summary, year, special, type, count } = req.body;
     const data = { title, summary, year, special, type, count };
     try {
       await db.updateStoryWithType(data);
+
+      const cached = await redisClient.get(`stories:${type}`);
+      if (cached) await redisClient.del(`stories:${type}`);
 
       return res.status(204).json({ message: "Successfully Edited Story" });
     } catch {
@@ -83,7 +85,6 @@ async function updateStoryWithType(req, res) {
 
 async function createStoryWithType(req, res) {
   const { type } = req.params;
-  console.log(type);
 
   const data = {
     title: req.body.title,
@@ -95,6 +96,8 @@ async function createStoryWithType(req, res) {
 
   try {
     await db.createStoryWithType(type, data);
+    const cached = await redisClient.get(`stories:${type}`);
+    if (cached) await redisClient.del(`stories:${type}`);
     res.status(201).json({ message: "Added story successfully!" });
   } catch {
     return res.status(500).json({ error: "Internal Server Error" });

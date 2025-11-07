@@ -43,6 +43,12 @@ async function updateStoryByID(req, res) {
       special: req.body.special,
     };
     try {
+      const cached = await redisClient.get(`stories:${req.body.type}`);
+      if (cached) {
+        console.log("Removing from cache");
+        await redisClient.del(`stories:${req.body.type}`);
+        await redisClient.del(`posts:${req.body.type}-${req.body.count}`);
+      }
       await db.updateStoryByID(storyId, data);
       return res.status(201).json({ message: "Updated story successfully" });
     } catch {
@@ -59,7 +65,6 @@ async function deleteStoryByID(req, res) {
   if (!api_key)
     return res.status(401).json({ error: "Missing or Invalid API Key" });
   if (api_key && api_key === process.env.API_KEY) {
-
     try {
       const results = await db.getStoryById(storyId);
       const { rows } = results;

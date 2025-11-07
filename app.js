@@ -9,28 +9,17 @@ app.use(cors("*"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// mohsaid99 website routes
-const typeRouter = require("./routes/type.route");
-const postRouter = require("./routes/post.route");
-const storyRouter = require("./routes/story.route");
-const loginRouter = require("./routes/login.route");
-const logsRouter = require("./routes/logs.route");
-
-// my social media app routes
 const socialMediaRouter = require("./social-media-app/app");
+const mohsaidRouter = require("./mohsaid99/mohsaid99");
 
 app.get("/health", (req, res) => {
   res.status(200).json({ message: "Pulsing" });
 });
 
-app.use("/mohsaid99", loginRouter);
-app.use("/mohsaid99", storyRouter);
-app.use("/mohsaid99", postRouter);
-app.use("/mohsaid99", logsRouter);
+// mohsaid99 routes
+app.use("/mohsaid99", mohsaidRouter);
 
-// NOTE TO SELF: always keep tyoe router at the bottom of mohsaid99 routes
-app.use("/mohsaid99", typeRouter);
-
+// new social media app routes
 app.use("/social-media-app", socialMediaRouter);
 
 app.listen(3000, () => {
