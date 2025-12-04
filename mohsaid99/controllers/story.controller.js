@@ -73,10 +73,14 @@ async function deleteStoryByID(req, res) {
 
       const cached = await redisClient.get(`stories:${story.type}`);
       if (cached) {
-        console.log("Removing from cache");
+        // console.log("Removing from cache");
         await redisClient.del(`stories:${story.type}`);
         await redisClient.del(`posts:${story.type}-${story.count}`);
       }
+      const latestCached = await redisClient.get(
+        `stories:${story.type}:latest`
+      );
+      if (latestCached) await redisClient.del(`stories:${story.type}:latest`);
       await db.deleteStoryByID(storyId);
       return res
         .status(200)

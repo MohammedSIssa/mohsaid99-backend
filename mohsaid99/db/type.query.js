@@ -7,6 +7,7 @@ async function getAllStoriesWithType(type) {
   );
 
   return results;
+  // return { stories: rows, latest: rows[0].count };
 }
 
 async function getStoriesByTypeAndCount(type, count) {
@@ -49,14 +50,6 @@ async function updateStoryWithType(data) {
     [title, summary, year, special, type, count]
   );
 }
-
-// async function updatePostByID(id, data) {
-//   const { title, body, storyid, images, type, special, secret } = data;
-//   await db.query(
-//     "UPDATE posts SET title = $1, body = $2, storyid = $3, images = $4, type = $5, special = $6, secret = $7, WHERE id = $8",
-//     [title, body, storyid, images, type, id, special, secret]
-//   );
-// }
 
 async function createStoryWithType(type, data) {
   const { title, summary, year, count, special } = data;

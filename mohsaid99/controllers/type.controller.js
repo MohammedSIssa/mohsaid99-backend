@@ -9,13 +9,31 @@ async function getAllStoriesWithType(req, res) {
     if (["week", "goal", "stat", "special", "blog"].includes(storyType)) {
       const cached = await redisClient.get(`stories:${storyType}`);
       if (cached) {
+        // const stories = JSON.parse(cached);
+        // const latestStoryCached = await redisClient.get(
+        //   `stories:${storyType}:latest`
+        // );
+        // if (latestStoryCached) {
+        //   return res
+        //     .status(200)
+        //     .json({ stories, latest: JSON.parse(latestStoryCached) });
+        // }
         return res.status(200).json(JSON.parse(cached));
+        // return res.status(200).json({ stories });
       }
 
-      const results = await db.getAllStoriesWithType(storyType);
-      const { rows } = results;
+      const { rows } = await db.getAllStoriesWithType(storyType);
+
+      // const results = await db.getAllStoriesWithType(storyType);
+      // const { stories } = results;
+      // const { latest } = results;
 
       await redisClient.set(`stories:${storyType}`, JSON.stringify(rows));
+      // await redisClient.set(
+      //   `stories:${storyType}:latest`,
+      //   JSON.stringify(latest)
+      // );
+      // return res.status(200).json({ stories, latest });
       return res.status(200).json(rows);
     }
   } catch {
@@ -98,6 +116,9 @@ async function createStoryWithType(req, res) {
     await db.createStoryWithType(type, data);
     const cached = await redisClient.get(`stories:${type}`);
     if (cached) await redisClient.del(`stories:${type}`);
+
+    const latestCached = await redisClient.get(`stories:${type}:latest`);
+    if (latestCached) await redisClient.del(`stories:${type}:latest`);
     res.status(201).json({ message: "Added story successfully!" });
   } catch {
     return res.status(500).json({ error: "Internal Server Error" });
