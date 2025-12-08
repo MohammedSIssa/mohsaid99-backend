@@ -43,6 +43,13 @@ async function createPostForStoryWithType(data) {
   );
 }
 
+async function getCreatedPost() {
+  const { rows } = await db.query(
+    "SELECT * FROM posts ORDER BY id DESC LIMIT 1"
+  );
+  return rows[0];
+}
+
 async function updateStoryWithType(data) {
   const { title, summary, year, special, type, count } = data;
   await db.query(
@@ -67,4 +74,5 @@ module.exports = {
   updateStoryWithType,
   // updatePostByID,
   createStoryWithType,
+  getCreatedPost,
 };

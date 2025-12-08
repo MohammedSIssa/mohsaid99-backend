@@ -9,31 +9,11 @@ async function getAllStoriesWithType(req, res) {
     if (["week", "goal", "stat", "special", "blog"].includes(storyType)) {
       const cached = await redisClient.get(`stories:${storyType}`);
       if (cached) {
-        // const stories = JSON.parse(cached);
-        // const latestStoryCached = await redisClient.get(
-        //   `stories:${storyType}:latest`
-        // );
-        // if (latestStoryCached) {
-        //   return res
-        //     .status(200)
-        //     .json({ stories, latest: JSON.parse(latestStoryCached) });
-        // }
         return res.status(200).json(JSON.parse(cached));
-        // return res.status(200).json({ stories });
       }
 
       const { rows } = await db.getAllStoriesWithType(storyType);
-
-      // const results = await db.getAllStoriesWithType(storyType);
-      // const { stories } = results;
-      // const { latest } = results;
-
       await redisClient.set(`stories:${storyType}`, JSON.stringify(rows));
-      // await redisClient.set(
-      //   `stories:${storyType}:latest`,
-      //   JSON.stringify(latest)
-      // );
-      // return res.status(200).json({ stories, latest });
       return res.status(200).json(rows);
     }
   } catch {
@@ -50,7 +30,6 @@ async function getPostsForStoryWithType(req, res) {
       console.log("Posts cache hit");
       return res.status(200).json(JSON.parse(cached));
     }
-    // console.log("Cache miss");
     const results = await db.getPostsForStoryWithType(type, storyId);
     const { rows } = results;
 
@@ -77,7 +56,8 @@ async function createPostForStoryWithType(req, res) {
     const cached = await redisClient.get(`posts:${data.type}-${storyId}`);
     if (cached) await redisClient.del(`posts:${data.type}-${storyId}`);
     console.log("Added post for", req.body.type, storyId);
-    res.status(201).json({ message: "Added post successfully!" });
+    const createdPost = await db.getCreatedPost();
+    res.status(201).json(createdPost);
   } catch (e) {
     res.status(500).json({ error: e });
   }

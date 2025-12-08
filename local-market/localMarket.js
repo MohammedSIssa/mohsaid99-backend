@@ -3,8 +3,10 @@ const localMarketRouter = Router();
 
 const loginRouter = require("./routes/login.route");
 const registerRouter = require("./routes/register.route");
- 
-localMarketRouter.use("/login", loginRouter)
-localMarketRouter.use("/register", registerRouter);
+const searchRouter = require("./routes/search.route");
 
-module.exports = localMarketRouter
+localMarketRouter.use("/login", loginRouter);
+localMarketRouter.use("/register", registerRouter);
+localMarketRouter.use("/search", searchRouter);
+
+module.exports = localMarketRouter;
