@@ -3,7 +3,7 @@ const db = require("../pool");
 async function addToLog(data) {
   const { username, url, details } = data;
   await db.query(
-    "INSERT INTO logs (username, url, details) VALUES ($1, $2, $3)",
+    "INSERT INTO logs (username, visited, details) VALUES ($1, $2, $3)",
     [username, url, details]
   );
 }

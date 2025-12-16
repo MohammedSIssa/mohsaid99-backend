@@ -9,6 +9,6 @@ const logsRouter = require("./routes/logs.route");
 newMohsaid99.use("/stories", storiesRouter);
 newMohsaid99.use("/posts", postsRouter);
 newMohsaid99.use("/login", loginRouter);
-newMohsaid99.use("/logs", logsRouter);
+newMohsaid99.use("/log", logsRouter);
 
 module.exports = newMohsaid99;

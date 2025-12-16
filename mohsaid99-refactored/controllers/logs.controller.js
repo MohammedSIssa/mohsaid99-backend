@@ -8,13 +8,15 @@ async function addToLogs(req, res) {
   const details = `${os} - ${visitedAt}`;
   const data = { username, url, details };
   try {
+    console.log(data);
     await db.addToLog(data);
 
     const redis_cache = await redisCache.get(cacheKey);
     if (redis_cache) await redisCache.del(cacheKey);
 
     return res.status(201).json({ message: "Added log successfully" });
-  } catch {
+  } catch (e) {
+    console.log(e);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 }
