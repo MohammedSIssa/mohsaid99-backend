@@ -13,6 +13,7 @@ const socialMediaRouter = require("./social-media-app/app");
 const mohsaidRouter = require("./mohsaid99/mohsaid99");
 const JSCRouter = require("./JSC/app");
 const localMarketRouter = require("./local-market/localMarket");
+const newMohsaid99 = require("./mohsaid99-refactored/new-mohsaid99");
 
 app.get("/health", (req, res) => {
   res.status(200).json({ message: "Pulsing" });
@@ -20,6 +21,9 @@ app.get("/health", (req, res) => {
 
 // mohsaid99 routes
 app.use("/mohsaid99", mohsaidRouter);
+
+// refactored mohsaid99
+app.use("/new-mohsaid99", newMohsaid99);
 
 // new social media app routes
 app.use("/social-media-app", socialMediaRouter);
