@@ -8,7 +8,8 @@ async function getLogs(req, res) {
       return res.status(404).json({ message: "No logs were found!" });
 
     return res.status(200).json(logs);
-  } catch {
+  } catch (e) {
+    console.error(e);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 }

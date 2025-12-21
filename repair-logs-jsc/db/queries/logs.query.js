@@ -1,19 +1,21 @@
 const db = require("../pool");
 
 async function getLogs() {
-  const { rows } = await db.query("SELECT * FROM logs");
+  const { rows } = await db.query("SELECT * FROM public.logs");
 
   return rows;
 }
 
 async function getLogById(id) {
-  const { rows } = await db.query("SELECT * FROM logs WHERE id = $1", [id]);
+  const { rows } = await db.query("SELECT * FROM public.logs WHERE id = $1", [
+    id,
+  ]);
 
   return rows[0];
 }
 
 async function deleteLogById(id) {
-  await db.query("DELETE FROM logs WHERE id = $1", [id]);
+  await db.query("DELETE FROM public.logs WHERE id = $1", [id]);
 }
 
 async function createLog(data) {
@@ -38,7 +40,7 @@ async function createLog(data) {
   console.log(data);
 
   await db.query(
-    `INSERT INTO logs (
+    `INSERT INTO public.logs (
     log_date,
     order_num,
     vehicle_code,

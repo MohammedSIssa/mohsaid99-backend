@@ -21,21 +21,23 @@ async function getDataByTermNumber(term_num) {
 }
 
 async function getAllTermsNums() {
-  const { rows } = await db.query("SELECT term_num FROM repair_terms");
+  const { rows } = await db.query("SELECT term_num FROM public.repair_terms");
   if (rows.length) return rows.map((row) => row.term_num);
 
   return [];
 }
 
 async function getAllRepairTypesAr() {
-  const { rows } = await db.query("SELECT repair_type_ar FROM repair_terms");
+  const { rows } = await db.query(
+    "SELECT repair_type_ar FROM public.repair_terms"
+  );
   if (rows.length) return rows.map((row) => row.repair_type_ar);
 
   return [];
 }
 
 async function getAllRepairTermsData() {
-  const { rows } = await db.query("SELECT * FROM repair_terms");
+  const { rows } = await db.query("SELECT * FROM public.repair_terms");
 
   return rows;
 }
@@ -53,7 +55,7 @@ async function createTerm(data) {
   } = data;
 
   await db.query(
-    `INSERT INTO repair_terms (
+    `INSERT INTO public.repair_terms (
     repair_type_ar,
     repair_type_en,
     repair_desc_ar,
@@ -77,12 +79,12 @@ async function createTerm(data) {
 }
 
 async function deleteTermById(id) {
-  await db.query("DELETE FROM repair_terms WHERE id = $1", [id]);
+  await db.query("DELETE FROM public.repair_terms WHERE id = $1", [id]);
 }
 
 async function getAllRepairTypes() {
   const { rows } = await db.query(
-    "SELECT DISTINCT repair_type_ar FROM repair_terms"
+    "SELECT DISTINCT repair_type_ar FROM public.repair_terms"
   );
   if (rows.length) return [...rows.map((row) => row.repair_type_ar)];
 }
