@@ -16,8 +16,8 @@ repairTermsRouter.get(
   repairTermsController.getTermsByRepairType
 );
 
+repairTermsRouter.get("/name", repairTermsController.getDataByTermName);
 repairTermsRouter.get("/name/all", repairTermsController.getAllTermNames);
-repairTermsRouter.get("/name/:name", repairTermsController.getDataByTermName);
 
 repairTermsRouter.get("/term/all", repairTermsController.getAllTermsNums);
 

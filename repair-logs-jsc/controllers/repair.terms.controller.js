@@ -83,9 +83,10 @@ async function getAllRepairTypes(req, res) {
 }
 
 async function getDataByTermName(req, res) {
-  const { name } = req.params;
+  const { search } = req.query;
+  console.log(search);
   try {
-    const data = await db.getDataByTermName(name);
+    const data = await db.getDataByTermName(search);
     if (!data)
       return res.status(404).json({ message: "No term data was found" });
 

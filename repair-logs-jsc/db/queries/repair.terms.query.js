@@ -101,6 +101,7 @@ async function getAllRepairTypes() {
 }
 
 async function getDataByTermName(name) {
+  console.log(name);
   const { rows } = await db.query(
     "SELECT * FROM public.repair_terms WHERE repair_desc_ar = $1",
     [name]
