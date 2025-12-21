@@ -14,6 +14,7 @@ const mohsaidRouter = require("./mohsaid99/mohsaid99");
 const JSCRouter = require("./JSC/app");
 const localMarketRouter = require("./local-market/localMarket");
 const newMohsaid99 = require("./mohsaid99-refactored/new-mohsaid99");
+const repairsRouter = require("./repair-logs-jsc/repairLogs");
 
 app.get("/health", (req, res) => {
   res.status(200).json({ message: "Pulsing" });
@@ -33,6 +34,9 @@ app.use("/jsc", JSCRouter);
 
 // Local Market
 app.use("/local-market", localMarketRouter);
+
+// Repair Logs
+app.use("/repair-logs", repairsRouter);
 
 app.listen(3000, () => {
   console.log("http://localhost:3000");
