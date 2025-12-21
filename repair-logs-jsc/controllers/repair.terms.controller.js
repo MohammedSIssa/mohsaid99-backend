@@ -82,6 +82,32 @@ async function getAllRepairTypes(req, res) {
   }
 }
 
+async function getDataByTermName(req, res) {
+  const { name } = req.params;
+  try {
+    const data = await db.getDataByTermName(name);
+    if (!data)
+      return res.status(404).json({ message: "No term data was found" });
+
+    return res.status(200).json(data);
+  } catch {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+async function getAllTermNames(req, res) {
+  try {
+    const data = await db.getAllTermNames();
+
+    if (!data || !data.length)
+      return res.status(404).json({ message: "No term names were found." });
+
+    return res.status(200).json(data);
+  } catch {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   getTermsByRepairType,
   getDataByTermNumber,
@@ -90,4 +116,6 @@ module.exports = {
   createTerm,
   deleteTermById,
   getAllRepairTypes,
+  getDataByTermName,
+  getAllTermNames,
 };

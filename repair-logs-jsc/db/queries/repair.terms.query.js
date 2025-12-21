@@ -1,12 +1,23 @@
 const db = require("../pool");
 
+// async function getTermsByRepairType(type) {
+//   const { rows } = await db.query(
+//     "SELECT term_num FROM repair_terms WHERE repair_type_ar = $1",
+//     [type]
+//   );
+//   if (rows.length) {
+//     return rows.map((row) => row.term_num);
+//   }
+//   return [];
+// }
+
 async function getTermsByRepairType(type) {
   const { rows } = await db.query(
-    "SELECT term_num FROM repair_terms WHERE repair_type_ar = $1",
+    "SELECT repair_desc_ar FROM repair_terms WHERE repair_type_ar = $1",
     [type]
   );
   if (rows.length) {
-    return rows.map((row) => row.term_num);
+    return rows.map((row) => row.repair_desc_ar);
   }
   return [];
 }
@@ -89,6 +100,24 @@ async function getAllRepairTypes() {
   if (rows.length) return [...rows.map((row) => row.repair_type_ar)];
 }
 
+async function getDataByTermName(name) {
+  const { rows } = await db.query(
+    "SELECT * FROM public.repair_terms WHERE repair_desc_ar = $1",
+    [name]
+  );
+
+  return rows[0];
+}
+
+async function getAllTermNames() {
+  const { rows } = await db.query(
+    "SELECT repair_desc_ar FROM public.repair_terms"
+  );
+  if (rows.length) return rows.map((row) => row.repair_desc_ar);
+
+  return [];
+}
+
 module.exports = {
   getTermsByRepairType,
   getDataByTermNumber,
@@ -98,4 +127,6 @@ module.exports = {
   createTerm,
   deleteTermById,
   getAllRepairTypes,
+  getDataByTermName,
+  getAllTermNames,
 };
