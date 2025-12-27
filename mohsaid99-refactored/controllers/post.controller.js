@@ -1,11 +1,22 @@
 const db = require("../db/queries/post.queries");
+const storyDB = require("../db/queries/stories.queries");
 const redisCache = require("../db/redisCache");
 
 // Read
 async function getPostsForStoryWithTypeAndID(req, res) {
   const { storyid, type } = req.params;
   const cacheKey = `posts:${type}:${storyid}`;
+  const cacheKey2 = `stories:${type}`;
 
+  const { user } = req.query;
+  if (user === "monmon") {
+    try {
+      await storyDB.updateStorySeen(type, storyid);
+      await redisCache.del(cacheKey2);
+    } catch {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
   // 2. Look for posts in redis cache
   try {
     const isRedisCached = await redisCache.get(cacheKey);
@@ -34,6 +45,14 @@ async function getPostsForStoryWithTypeAndID(req, res) {
 async function addPostWithTypeAndID(req, res) {
   const { storyid, type } = req.params;
   const { title, body, images, special, secret } = req.body;
+  const cacheKey2 = `stories:${type}`;
+
+  try {
+    await storyDB.updateStoryUnSeen(type, storyid);
+    await redisCache.del(cacheKey2);
+  } catch {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 
   const cacheKey = `posts:${type}:${storyid}`;
 
@@ -62,6 +81,15 @@ async function updatePostWithTypeAndID(req, res) {
   const { title, body, images, storyid, type, special, secret } = req.body;
   const cacheKey = `posts:${type}:${storyid}`;
   const cacheKey2 = `posts:${url_type}:${url_storyid}`;
+  const cacheKey3 = `stories:${type}`;
+
+  try {
+    await storyDB.updateStoryUnSeen(type, storyid);
+    await redisCache.del(cacheKey3);
+  } catch {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+
   try {
     await db.updatePostByID(postid, {
       title,
@@ -90,6 +118,14 @@ async function updatePostWithTypeAndID(req, res) {
 async function deletePostWithTypeAndID(req, res) {
   const { storyid, type, postid } = req.params;
   const cacheKey = `posts:${type}:${storyid}`;
+  const cacheKey2 = `stories:${type}`;
+
+  try {
+    await storyDB.updateStoryUnSeen(type, storyid);
+    await redisCache.del(cacheKey2);
+  } catch {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 
   try {
     // Delete from Postgres
