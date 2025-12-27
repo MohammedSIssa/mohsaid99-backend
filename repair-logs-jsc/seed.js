@@ -22,7 +22,7 @@ async function seed() {
   const workbook = xlsx.readFile("./data.xlsx");
 
   // 2. Select first sheet
-  const sheet = workbook.Sheets[workbook.SheetNames[2]];
+  const sheet = workbook.Sheets[workbook.SheetNames[3]];
 
   // 3. Convert to JSON
   const rows = xlsx.utils.sheet_to_json(sheet, {
@@ -30,25 +30,48 @@ async function seed() {
     raw: false,
   });
 
-  // rows = [{ name: "Apple", price: 1.22, created_at: "2025-09-01" }]
-
   // 4. Insert rows
   for (const row of rows) {
-    // if (!parseDDMMYYYY(row.log_date)) break;
+    if (!parseDDMMYYYY(row.log_date)) break;
     await pool.query(
       `
-      INSERT INTO repair_terms (term_num, repair_type_ar, repair_type_en, repair_desc_ar, repair_desc_en, uom, qty, service_cost)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO logs (
+      log_date,
+      order_num, 
+      vehicle_code, 
+      vehicle_type_en, 
+      vehicle_type_ar, 
+      licence_number, 
+      vehicle_model_ar, 
+      vehicle_model_en,
+      term_num,
+      repair_desc_ar,
+      repair_desc_en,
+      unit,
+      qty,
+      unit_cost,
+      repair_cost,
+      total_cost
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       `,
       [
+        parseDDMMYYYY(row.log_date),
+        row.order_num,
+        row.vehicle_code,
+        row.vehicle_type_en,
+        row.vehicle_type_ar,
+        row.licence_number,
+        row.vehicle_model_ar,
+        row.vehicle_model_en,
         row.term_num,
-        row.repair_type_ar,
-        row.repair_type_en,
         row.repair_desc_ar,
         row.repair_desc_en,
-        row.uom,
+        row.unit,
         row.qty,
-        row.service_cost,
+        row.unit_cost,
+        row.repair_cost,
+        row.total_cost,
       ]
     );
   }
