@@ -1,8 +1,15 @@
-const db = require("../db/queries/logs.query");
+const db = require("../db/pool");
+const { update } = require("../db/helpers/update");
+const { getById } = require("../db/helpers/getById");
+const { getAll } = require("../db/helpers/getAll");
+const { insert } = require("../db/helpers/insert");
+const { deleteById } = require("../db/helpers/deleteById");
+
+const tableName = "logs";
 
 async function getLogs(req, res) {
   try {
-    const logs = await db.getLogs();
+    const logs = await getAll(tableName, db);
 
     if (!logs || !logs.length)
       return res.status(404).json({ message: "No logs were found!" });
@@ -15,9 +22,8 @@ async function getLogs(req, res) {
 }
 
 async function getLogById(req, res) {
-  const { id } = req.params;
   try {
-    const log = await db.getLogById(id);
+    const log = await getById(tableName, req.params.id, db);
     if (!log) return res.status(404).json({ message: "No log was found!" });
 
     return res.status(200).json(log);
@@ -28,9 +34,8 @@ async function getLogById(req, res) {
 }
 
 async function deleteLogById(req, res) {
-  const { id } = req.params;
   try {
-    await db.deleteLogById(id);
+    await deleteById(tableName, req.params.id, db);
 
     return res.status(204).json({ message: "Deleted successfully" });
   } catch {
@@ -40,9 +45,20 @@ async function deleteLogById(req, res) {
 
 async function createLog(req, res) {
   try {
-    await db.createLog(req.body);
+    await insert(tableName, req.body, db);
 
     return res.status(201).json({ message: "Created a log." });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+async function updateLogById(req, res) {
+  try {
+    await update(tableName, req.params.id, req.body, db);
+
+    return res.status(204).json({ message: "Updated successfully" });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -54,4 +70,5 @@ module.exports = {
   getLogById,
   deleteLogById,
   createLog,
+  updateLogById,
 };

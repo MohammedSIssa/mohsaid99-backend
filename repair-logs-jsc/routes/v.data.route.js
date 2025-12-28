@@ -11,16 +11,13 @@ vehiclesDataRouter.delete("/:id", vehiclesController.deleteVehicleById);
 
 vehiclesDataRouter.get("/vcode/all", vehiclesController.getAllVehicleCode);
 
-vehiclesDataRouter.get(
-  "/vcode/:vcode",
-  vehiclesController.getDataByVehicleCode
-);
+vehiclesDataRouter.get("/vcode", vehiclesController.getDataByVehicleCode);
 
 vehiclesDataRouter.get(
-  "/licence/:licence",
+  "/licence",
   vehiclesController.getVehicleByLicenceNumber
 );
 
-vehiclesDataRouter.get("/state/:state", vehiclesController.getVehiclesByState);
+vehiclesDataRouter.get("/state", vehiclesController.getVehiclesByState);
 
 module.exports = vehiclesDataRouter;

@@ -9,18 +9,19 @@ repairTermsRouter.post("/", repairTermsController.createTerm);
 
 repairTermsRouter.delete("/:id", repairTermsController.deleteTermById);
 
+repairTermsRouter.get("/type", repairTermsController.getTermsByRepairType);
+
 repairTermsRouter.get("/type/all", repairTermsController.getAllRepairTypes);
 
-repairTermsRouter.get(
-  "/type/:type",
-  repairTermsController.getTermsByRepairType
-);
+// repairTermsRouter.get(
+//   "/type/:type",
+//   repairTermsController.getTermsByRepairType
+// );
 
 repairTermsRouter.get("/name", repairTermsController.getDataByTermName);
 repairTermsRouter.get("/name/all", repairTermsController.getAllTermNames);
 
+repairTermsRouter.get("/term", repairTermsController.getDataByTermNumber);
 repairTermsRouter.get("/term/all", repairTermsController.getAllTermsNums);
-
-repairTermsRouter.get("/term/:term", repairTermsController.getDataByTermNumber);
 
 module.exports = repairTermsRouter;
