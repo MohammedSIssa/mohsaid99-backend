@@ -1,5 +1,4 @@
-const db = require("../db/queries/repair.terms.query");
-const poolDb = require("../db/pool");
+const db = require("../db/pool");
 const { findWhere } = require("../db/helpers/findWhere");
 const {
   getColumnValuesWithFilter,
@@ -21,7 +20,7 @@ async function getTermsByRepairType(req, res) {
       tableName,
       "repair_desc_ar",
       req.query,
-      poolDb
+      db
     );
     if (!terms || !terms.length) {
       return res.status(404).json({ message: "No terms were found" });
@@ -34,7 +33,7 @@ async function getTermsByRepairType(req, res) {
 
 async function getDataByTermNumber(req, res) {
   try {
-    const data = await findWhere(tableName, req.query, poolDb);
+    const data = await findWhere(tableName, req.query, db);
     if (!data)
       return res
         .status(404)
@@ -48,7 +47,7 @@ async function getDataByTermNumber(req, res) {
 
 async function getAllTermsNums(req, res) {
   try {
-    const terms = await getColumnValues(tableName, "term_nums", poolDb);
+    const terms = await getColumnValues(tableName, "term_nums", db);
     if (!terms || !terms.length)
       return res.status(404).json({ message: "No terms were found." });
 
@@ -60,7 +59,7 @@ async function getAllTermsNums(req, res) {
 
 async function getAllRepairTermsData(req, res) {
   try {
-    const data = await getAll(tableName, poolDb);
+    const data = await getAll(tableName, db);
     if (!data || !data.length)
       return res.status(404).json({ message: "No data was found!" });
 
@@ -72,7 +71,7 @@ async function getAllRepairTermsData(req, res) {
 
 async function createTerm(req, res) {
   try {
-    await insert(tableName, req.body, poolDb);
+    await insert(tableName, req.body, db);
 
     return res.status(200).json({ message: "Created successfully" });
   } catch {
@@ -82,7 +81,7 @@ async function createTerm(req, res) {
 
 async function deleteTermById(req, res) {
   try {
-    await deleteById(tableName, req.params.id, poolDb);
+    await deleteById(tableName, req.params.id, db);
 
     return res.status(204).json({ message: "Deleted successfully" });
   } catch {
@@ -93,11 +92,7 @@ async function deleteTermById(req, res) {
 async function getAllRepairTypes(req, res) {
   try {
     // const data = await db.getAllRepairTypes();
-    const data = await getDistinctColumnValues(
-      tableName,
-      "repair_type_ar",
-      poolDb
-    );
+    const data = await getDistinctColumnValues(tableName, "repair_type_ar", db);
     return res.status(200).json(data);
   } catch {
     return res.status(500).json("Internal Server Error");
@@ -106,7 +101,7 @@ async function getAllRepairTypes(req, res) {
 
 async function getDataByTermName(req, res) {
   try {
-    const data = await findWhere("repair_terms", req.query, poolDb);
+    const data = await findWhere("repair_terms", req.query, db);
     if (!data)
       return res.status(404).json({ message: "No term data was found" });
 
@@ -118,7 +113,7 @@ async function getDataByTermName(req, res) {
 
 async function getAllTermNames(req, res) {
   try {
-    const data = await getColumnValues(tableName, "repair_desc_ar", poolDb);
+    const data = await getColumnValues(tableName, "repair_desc_ar", db);
 
     if (!data || !data.length)
       return res.status(404).json({ message: "No term names were found." });

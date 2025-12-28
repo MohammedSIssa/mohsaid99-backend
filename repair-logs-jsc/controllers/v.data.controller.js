@@ -1,4 +1,4 @@
-const poolDb = require("../db/pool");
+const db = require("../db/pool");
 const { findWhere } = require("../db/helpers/findWhere");
 const { getColumnValues } = require("../db/helpers/getColumnValues");
 const { getAll } = require("../db/helpers/getAll");
@@ -9,7 +9,7 @@ const tableName = "vehicles_data";
 
 async function getDataByVehicleCode(req, res) {
   try {
-    const vehicle = await findWhere(tableName, req.query, poolDb);
+    const vehicle = await findWhere(tableName, req.query, db);
     if (!vehicle)
       return res.status(404).json({ message: "No vehicle was found!" });
 
@@ -21,7 +21,7 @@ async function getDataByVehicleCode(req, res) {
 
 async function getVehicleByLicenceNumber(req, res) {
   try {
-    const vehicle = findWhere(tableName, req.query, poolDb);
+    const vehicle = findWhere(tableName, req.query, db);
     if (!vehicle || !vehicle.length)
       return res.status(404).json({ message: "No vehicle was found!" });
 
@@ -33,7 +33,7 @@ async function getVehicleByLicenceNumber(req, res) {
 
 async function getVehiclesByState(req, res) {
   try {
-    const vehicle = await findWhere(tableName, req.query, poolDb);
+    const vehicle = await findWhere(tableName, req.query, db);
     if (!vehicle || !vehicle.length)
       return res.status(404).json({ message: "No vehicle was found!" });
 
@@ -45,7 +45,7 @@ async function getVehiclesByState(req, res) {
 
 async function getAllVehicleCode(req, res) {
   try {
-    const codes = await getColumnValues(tableName, "vehicle_code", poolDb);
+    const codes = await getColumnValues(tableName, "vehicle_code", db);
     if (!codes || !codes.length)
       return res.status(404).json({ message: "No codes were found!" });
 
@@ -57,7 +57,7 @@ async function getAllVehicleCode(req, res) {
 
 async function getAllVehicleData(req, res) {
   try {
-    const data = await getAll(tableName, poolDb);
+    const data = await getAll(tableName, db);
     if (!data || !data.length)
       return res.status(404).json({ message: "No vehicle data was found!" });
 
@@ -69,7 +69,7 @@ async function getAllVehicleData(req, res) {
 
 async function createVehicle(req, res) {
   try {
-    await insert(tableName, req.body, poolDb);
+    await insert(tableName, req.body, db);
     return res.status(201).json({ message: "Create vehicle successfully" });
   } catch {
     return res.status(500).json({ message: "Internal Server Error" });
@@ -78,7 +78,7 @@ async function createVehicle(req, res) {
 
 async function deleteVehicleById(req, res) {
   try {
-    await deleteById(tableName, req.params.id, poolDb);
+    await deleteById(tableName, req.params.id, db);
     return res.status(204).json({ message: "Deleted successfully!" });
   } catch {
     return res.status(500).json({ message: "Internal Server Error" });
