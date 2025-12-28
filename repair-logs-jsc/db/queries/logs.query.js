@@ -25,6 +25,8 @@ async function createLog(data) {
     vehicle_code,
     vehicle_type_ar,
     licence_number,
+    vehicle_type_en,
+    vehicle_model_ar,
     vehicle_model_en,
     term_num,
     repair_desc_ar,
@@ -55,8 +57,10 @@ async function createLog(data) {
     unit_cost,
     repair_cost,
     total_cost,
-    notes
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+    notes,
+    vehicle_type_en,
+    vehicle_model_ar
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
     [
       logs_date,
       order_num,
@@ -73,6 +77,8 @@ async function createLog(data) {
       repair_cost,
       total_cost,
       notes,
+      vehicle_type_en,
+      vehicle_model_ar,
     ]
   );
 }
