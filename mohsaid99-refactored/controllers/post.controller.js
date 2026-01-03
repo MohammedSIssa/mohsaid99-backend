@@ -1,149 +1,99 @@
-const db = require("../db/queries/post.queries");
-const storyDB = require("../db/queries/stories.queries");
 const redisCache = require("../db/redisCache");
+const orm = require("../db/queries/orm");
+const TABLE_NAME = "posts";
 
 // Read
-async function getPostsForStoryWithTypeAndID(req, res) {
-  const { storyid, type } = req.params;
+async function getPosts(req, res) {
+  const { type, storyid } = req.query;
   const cacheKey = `posts:${type}:${storyid}`;
-  const cacheKey2 = `stories:${type}`;
-
-  const { user } = req.query;
-  if (user === "monmon") {
-    try {
-      await storyDB.updateStorySeen(type, storyid);
-      await redisCache.del(cacheKey2);
-    } catch {
-      return res.status(500).json({ message: "Internal Server Error" });
-    }
-  }
-  // 2. Look for posts in redis cache
   try {
-    const isRedisCached = await redisCache.get(cacheKey);
-    if (isRedisCached) {
-      return res.status(200).json(JSON.parse(isRedisCached));
-    }
-  } catch {
+    const redis = await redisCache.get(cacheKey);
+    if (redis) return res.status(200).json(JSON.parse(redis));
+  } catch (e) {
+    console.error(e);
     console.log("Redis error");
   }
 
-  // 3. If not found, fetch from Postgres
   try {
-    const posts = await db.getPostsForStoryWithTypeAndID(type, storyid);
-    if (!posts) return res.status(404).json({ message: "No posts found" });
-
-    // Add to redis cache
-    redisCache.set(cacheKey, JSON.stringify(posts));
-
+    const posts = await orm.findWhere(TABLE_NAME, req.query, {
+      orderBy: "id DESC",
+    });
+    await redisCache.set(cacheKey, JSON.stringify(posts));
     return res.status(200).json(posts);
-  } catch {
-    return res.status(500).json({ message: "Internal Server Error" });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ message: "Internal Server Error", e });
   }
 }
 
 // Create
-async function addPostWithTypeAndID(req, res) {
-  const { storyid, type } = req.params;
-  const { title, body, images, special, secret } = req.body;
-  const cacheKey2 = `stories:${type}`;
-
-  try {
-    await storyDB.updateStoryUnSeen(type, storyid);
-    await redisCache.del(cacheKey2);
-  } catch {
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
-
+async function createPost(req, res) {
+  const { type, storyid } = req.query;
   const cacheKey = `posts:${type}:${storyid}`;
 
   try {
-    await db.addPostWithTypeAndID({
-      storyid,
-      type,
-      title,
-      body,
-      images,
-      special,
-      secret,
-    });
-    const redis_cache = await redisCache.get(cacheKey);
-    if (redis_cache) await redisCache.del(cacheKey);
+    await redisCache.del(cacheKey);
+  } catch (e) {
+    console.error(e);
+    console.log("Redis Error");
+  }
 
-    return res.status(201).json({ message: "Post created successfully" });
-  } catch {
-    return res.status(500).json({ message: "Internal Server Error" });
+  try {
+    await orm.create(TABLE_NAME, req.body);
+    return res.status(201).json({ message: "Created posts successfully" });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ message: "Internal Server Error", e });
   }
 }
 
 // Update
 async function updatePostWithTypeAndID(req, res) {
-  const { storyid: url_storyid, type: url_type, postid } = req.params;
-  const { title, body, images, storyid, type, special, secret } = req.body;
-  const cacheKey = `posts:${type}:${storyid}`;
-  const cacheKey2 = `posts:${url_type}:${url_storyid}`;
-  const cacheKey3 = `stories:${type}`;
+  const { fromtype, fromcount, id } = req.query;
+  const { type, storyid } = req.body;
+  const cacheKey1 = `posts:${fromtype}:${fromcount}`;
+  const cacheKey2 = `posts:${type}:${storyid}`;
 
   try {
-    await storyDB.updateStoryUnSeen(type, storyid);
-    await redisCache.del(cacheKey3);
-  } catch {
-    return res.status(500).json({ message: "Internal Server Error" });
+    await redisCache.del(cacheKey1);
+    await redisCache.del(cacheKey2);
+  } catch (e) {
+    console.error(e);
+    console.log("Redis Error");
   }
 
   try {
-    await db.updatePostByID(postid, {
-      title,
-      body,
-      images,
-      storyid,
-      type,
-      special,
-      secret,
-    });
-
-    // 2. Remove from redis cache
-    const redis_1_cache = await redisCache.get(cacheKey);
-    if (redis_1_cache) await redisCache.del(cacheKey);
-
-    const redis_2_cache = await redisCache.get(cacheKey2);
-    if (redis_2_cache) await redisCache.del(cacheKey2);
-
-    return res.status(204).json({ message: "Post updated successfully" });
-  } catch {
-    return res.status(500).json({ message: "Internal Server Error" });
+    await orm.update(TABLE_NAME, id, req.body);
+    return res.status(201).json({ message: "Update success" });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ message: "Internal Server Error", e });
   }
 }
 
 // Delete
 async function deletePostWithTypeAndID(req, res) {
-  const { storyid, type, postid } = req.params;
+  const { type, storyid, id } = req.query;
   const cacheKey = `posts:${type}:${storyid}`;
-  const cacheKey2 = `stories:${type}`;
 
   try {
-    await storyDB.updateStoryUnSeen(type, storyid);
-    await redisCache.del(cacheKey2);
-  } catch {
-    return res.status(500).json({ message: "Internal Server Error" });
+    await redisCache.del(cacheKey);
+  } catch (e) {
+    console.error(e);
   }
 
   try {
-    // Delete from Postgres
-    await db.deletePostByID(postid);
-
-    // Delete from redis
-    const redis_cache = await redisCache.get(cacheKey);
-    if (redis_cache) await redisCache.del(cacheKey);
-
-    return res.status(200).json({ message: "Deleted post successfully" });
-  } catch {
-    return res.status(500).json({ message: "Internal Server Error" });
+    await orm.deleteById(TABLE_NAME, id);
+    return res.status(200).json({ message: "Deleted successfully" });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ message: "Internal Server Error", e });
   }
 }
 
 module.exports = {
-  addPostWithTypeAndID,
-  getPostsForStoryWithTypeAndID,
+  createPost,
+  getPosts,
   updatePostWithTypeAndID,
   deletePostWithTypeAndID,
 };

@@ -1,5 +1,7 @@
 const db = require("../db/queries/logs.queries");
 const redisCache = require("../db/redisCache");
+const orm = require("../db/queries/orm");
+const TABLE_NAME = "logs";
 
 // Create
 async function addToLogs(req, res) {
@@ -8,8 +10,8 @@ async function addToLogs(req, res) {
   const details = `${os} - ${visitedAt}`;
   const data = { username, url, details };
   try {
-    console.log(data);
-    await db.addToLog(data);
+    await orm.create(TABLE_NAME, data);
+    // await db.addToLog(data);
 
     const redis_cache = await redisCache.get(cacheKey);
     if (redis_cache) await redisCache.del(cacheKey);
@@ -31,7 +33,9 @@ async function getLogs(req, res) {
 
   // 3. If not cached, fetch from Postgres
   try {
-    const logs = await db.readLog();
+    // const logs = await db.readLog();
+    const logs = await orm.findWhere(TABLE_NAME, {}, { orderBy: "id DESC" });
+    await redisCache.set(cacheKey, JSON.stringify(logs));
     return res.status(200).json(logs);
   } catch {
     return res.status(500).json({ message: "Internal Server Error" });

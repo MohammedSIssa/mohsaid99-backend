@@ -4,7 +4,9 @@ const logsController = require("../controllers/logs.controller");
 
 const { ensureAdmin } = require("./protected.route");
 
-logsRouter.post("/", logsController.addToLogs);
-logsRouter.get("/", ensureAdmin, logsController.getLogs);
+logsRouter
+  .route("/")
+  .get(ensureAdmin, logsController.getLogs)
+  .post(logsController.addToLogs);
 
 module.exports = logsRouter;
