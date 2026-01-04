@@ -40,7 +40,7 @@ async function getStories(req, res) {
 
   // 3. Get from Postgres
   try {
-    const stories = await orm.findWhere(TABLE_NAME, req.query, {
+    const stories = await orm.findILike(TABLE_NAME, req.query, {
       orderBy: "count DESC",
     });
     // Store data in redis cache

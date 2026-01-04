@@ -69,7 +69,7 @@ class MiniORM {
    *   offset: 0
    * });
    */
-  async findWhere(table, conditions = {}, options = {}) {
+  async findILike(table, conditions = {}, options = {}) {
     const { orderBy = "", limit, offset } = options;
 
     const keys = Object.keys(conditions);
@@ -78,6 +78,47 @@ class MiniORM {
     let whereClause = "";
     if (keys.length) {
       const clauses = keys.map((key, i) => `${key}::text ILIKE $${i + 1}`);
+      whereClause = ` WHERE ${clauses.join(" AND ")}`;
+    }
+
+    let query = `SELECT * FROM ${table}${whereClause}`;
+
+    if (orderBy) query += ` ORDER BY ${orderBy}`;
+    if (limit) query += ` LIMIT ${limit}`;
+    if (offset) query += ` OFFSET ${offset}`;
+
+    const { rows } = await db.query(query, values);
+    return rows;
+  }
+
+  /**
+   * Find multiple rows in a table using AND conditions.
+   *
+   * @param {string} table - Table name
+   * @param {Object<string, any>} conditions - Column-value pairs for WHERE clause
+   * @param {Object} [options] - Optional query options
+   * @param {string} [options.orderBy] - ORDER BY clause (e.g. "id DESC")
+   * @param {number} [options.limit] - LIMIT value
+   * @param {number} [options.offset] - OFFSET value
+   *
+   * @returns {Promise<Array<Object>>} Array of matching rows
+   *
+   * @example
+   * await orm.findWhere("posts", { type: "text", week: 44 }, {
+   *   orderBy: "id DESC",
+   *   limit: 10,
+   *   offset: 0
+   * });
+   */
+  async findWhere(table, conditions = {}, options = {}) {
+    const { orderBy = "", limit, offset } = options;
+
+    const keys = Object.keys(conditions);
+    const values = Object.values(conditions);
+
+    let whereClause = "";
+    if (keys.length) {
+      const clauses = keys.map((key, i) => `${key} = $${i + 1}`);
       whereClause = ` WHERE ${clauses.join(" AND ")}`;
     }
 
