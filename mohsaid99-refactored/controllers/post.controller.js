@@ -4,7 +4,38 @@ const TABLE_NAME = "posts";
 
 // Read
 async function getPosts(req, res) {
-  const { type, storyid } = req.query;
+  const { type, storyid, year, special } = req.query;
+
+  if (year) {
+    const cacheKey = `posts:${type}:${year}`;
+    if (Number(year) === 2025) {
+      try {
+        const redis = await redisCache.get(cacheKey);
+        if (redis) return res.status(200).json(JSON.parse(redis));
+      } catch (e) {
+        console.error(e);
+        console.log("Redis error");
+      }
+    }
+
+    const where = {
+      type,
+      special: special === "true",
+    };
+
+    const options = {
+      orderBy: "id",
+      year: Number(year),
+    };
+    try {
+      const posts = await orm.findWhere("posts", where, options);
+      await redisCache.set(cacheKey, JSON.stringify(posts));
+      return res.status(200).json(posts);
+    } catch (e) {
+      return res.status(500).json({ message: "Internal Server Error", e });
+    }
+  }
+
   const cacheKey = `posts:${type}:${storyid}`;
   try {
     const redis = await redisCache.get(cacheKey);

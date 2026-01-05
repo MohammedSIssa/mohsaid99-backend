@@ -110,19 +110,54 @@ class MiniORM {
    *   offset: 0
    * });
    */
+  // async findWhere(table, conditions = {}, options = {}) {
+  //   const { orderBy = "", limit, offset } = options;
+
+  //   const keys = Object.keys(conditions);
+  //   const values = Object.values(conditions);
+
+  //   let whereClause = "";
+  //   if (keys.length) {
+  //     const clauses = keys.map((key, i) => `${key} = $${i + 1}`);
+  //     whereClause = ` WHERE ${clauses.join(" AND ")}`;
+  //   }
+
+  //   let query = `SELECT * FROM ${table}${whereClause}`;
+
+  //   if (orderBy) query += ` ORDER BY ${orderBy}`;
+  //   if (limit) query += ` LIMIT ${limit}`;
+  //   if (offset) query += ` OFFSET ${offset}`;
+
+  //   const { rows } = await db.query(query, values);
+  //   return rows;
+  // }
+
   async findWhere(table, conditions = {}, options = {}) {
-    const { orderBy = "", limit, offset } = options;
+    const { orderBy = "", limit, offset, year } = options;
 
     const keys = Object.keys(conditions);
     const values = Object.values(conditions);
 
-    let whereClause = "";
+    let clauses = [];
+    let paramIndex = values.length;
+
+    // direct column filters
     if (keys.length) {
-      const clauses = keys.map((key, i) => `${key} = $${i + 1}`);
-      whereClause = ` WHERE ${clauses.join(" AND ")}`;
+      clauses = keys.map((key, i) => `${key} = $${i + 1}`);
     }
 
-    let query = `SELECT * FROM ${table}${whereClause}`;
+    // derived filter (year)
+    if (year) {
+      paramIndex++;
+      clauses.push(`EXTRACT(YEAR FROM iat) = $${paramIndex}`);
+      values.push(year);
+    }
+
+    let query = `SELECT * FROM ${table}`;
+
+    if (clauses.length) {
+      query += ` WHERE ${clauses.join(" AND ")}`;
+    }
 
     if (orderBy) query += ` ORDER BY ${orderBy}`;
     if (limit) query += ` LIMIT ${limit}`;
