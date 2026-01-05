@@ -8,7 +8,7 @@ async function addToLogs(req, res) {
   const cacheKey = "logs";
   const { visitedAt, os, url, username } = req.body;
   const details = `${os} - ${visitedAt}`;
-  const data = { username, url, details };
+  const data = { username, visited: url, details };
   try {
     await orm.create(TABLE_NAME, data);
     // await db.addToLog(data);
