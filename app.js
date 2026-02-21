@@ -1,12 +1,14 @@
 require("dotenv").config();
 
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const express = require("express");
 const app = express();
 
 app.use(cors("*"));
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 const socialMediaRouter = require("./social-media-app/app");
@@ -15,6 +17,7 @@ const JSCRouter = require("./JSC/app");
 const localMarketRouter = require("./local-market/localMarket");
 const newMohsaid99 = require("./mohsaid99-refactored/new-mohsaid99");
 const repairsRouter = require("./repair-logs-jsc/repairLogs");
+const modernMohsaid99Router = require("./modern-mohsaid99/modern-app");
 
 app.get("/health", (req, res) => {
   res.status(200).json({ message: "Pulsing" });
@@ -37,6 +40,8 @@ app.use("/local-market", localMarketRouter);
 
 // Repair Logs
 app.use("/repair-logs", repairsRouter);
+
+app.use("/modern-mohsaid99", modernMohsaid99Router);
 
 app.listen(3000, () => {
   console.log("http://localhost:3000");
