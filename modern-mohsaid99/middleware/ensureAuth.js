@@ -2,9 +2,6 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const ensureAuth = (req, res, next) => {
-  // if (process.env.NODE_ENV === "development") {
-  //   return next();
-  // }
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
