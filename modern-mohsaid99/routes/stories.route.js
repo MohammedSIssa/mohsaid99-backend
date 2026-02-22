@@ -35,6 +35,11 @@ storiesRouter.get("/", ensureAuth, async (req, res) => {
 
 storiesRouter.post("/", ensureAuth, ensureAdmin, async (req, res) => {
   const { title, type, summary, count, special, year } = req.body;
+
+  console.log({
+    cacheKey: `stories:${type}:${type === "special" || type === "blog" ? year.split("/")[2] : year}`,
+  });
+
   try {
     if (process.env.NODE_ENV === "development") {
       // deal with postgres directly
@@ -45,7 +50,8 @@ storiesRouter.post("/", ensureAuth, ensureAdmin, async (req, res) => {
       return res.status(201).json(newStory.rows[0]);
     } else {
       // deal with redis/postgres
-      const cacheKey = `stories:${type}:${year}`;
+
+      const cacheKey = `stories:${type}:${type === "special" || type === "blog" ? year.split("/")[2] : year}`;
       const newStory = await req.pool.query(
         `INSERT INTO stories (title, type, summary, count, special, year) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
         [title, type, summary, count, special, year],

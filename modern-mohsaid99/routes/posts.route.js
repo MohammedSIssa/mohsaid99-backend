@@ -65,7 +65,7 @@ postsRouter.post("/", ensureAuth, ensureAdmin, async (req, res) => {
   }
 });
 
-postsRouter.patch("/:id", ensureAuth, ensureAdmin, async (req, res) => {
+postsRouter.put("/:id", ensureAuth, ensureAdmin, async (req, res) => {
   const { id } = req.params;
   const { title, body, type, storyid, special, secret, images, dir } = req.body;
   try {

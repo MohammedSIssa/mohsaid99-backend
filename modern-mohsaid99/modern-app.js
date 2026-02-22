@@ -8,6 +8,7 @@ const loginRouter = require("./routes/login.route");
 const postsRouter = require("./routes/posts.route");
 const storiesRouter = require("./routes/stories.route");
 const authRouter = require("./routes/auth.route");
+const logsRouter = require("./routes/log.route");
 
 // Connect to redis only in production to avoid unnecessary overhead during development
 let redisClient;
@@ -50,5 +51,6 @@ modernMohsaid99Router.use("/login", loginRouter);
 modernMohsaid99Router.use("/posts", postsRouter);
 modernMohsaid99Router.use("/stories", storiesRouter);
 modernMohsaid99Router.use("/auth", authRouter);
+modernMohsaid99Router.use("/log", logsRouter);
 
 module.exports = modernMohsaid99Router;
