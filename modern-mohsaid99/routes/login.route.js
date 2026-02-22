@@ -24,9 +24,13 @@ loginRoute.post("/", async (req, res) => {
   if (!matchPassword)
     return res.status(401).json({ message: "Incorrect password" });
 
+  console.log("SECRET KEY:", process.env.SECRET_KEY);
+
   const token = jwt.sign({ user: user.rows[0] }, process.env.SECRET_KEY, {
     expiresIn: "365d",
   });
+
+  console.log("Generated JWT:", token);
 
   res.json({
     token,
