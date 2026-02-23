@@ -1,19 +1,19 @@
 require("dotenv").config();
 
 const cors = require("cors");
-const cookieParser = require("cookie-parser");
+// const cookieParser = require("cookie-parser");
 
 const express = require("express");
 const app = express();
 
-app.use(cookieParser());
-const corsOptions = {
-  origin:
-    process.env.NODE_ENV === "development"
-      ? process.env.LOCALHOST_URI
-      : process.env.GITHUB_URI,
-  credentials: true,
-};
+// app.use(cookieParser());
+// const corsOptions = {
+//   origin:
+//     process.env.NODE_ENV === "development"
+//       ? process.env.LOCALHOST_URI
+//       : process.env.GITHUB_URI,
+//   credentials: true,
+// };
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -48,7 +48,7 @@ app.use("/local-market", cors("*"), localMarketRouter);
 // Repair Logs
 app.use("/repair-logs", cors("*"), repairsRouter);
 
-app.use("/modern-mohsaid99", cors(corsOptions), modernMohsaid99Router);
+app.use("/modern-mohsaid99", cors("*"), modernMohsaid99Router);
 
 app.listen(3000, () => {
   console.log("http://localhost:3000");

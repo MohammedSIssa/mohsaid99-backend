@@ -34,25 +34,7 @@ loginRoute.post("/", async (req, res) => {
     role: user.rows[0].role,
   };
 
-  res.cookie("token", token, {
-    httpOnly: true, // prevents JS from reading the cookie
-    secure: process.env.NODE_ENV === "production", // only over HTTPS in prod
-    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year in ms
-    path: "/", // cookie is valid for the entire site
-    sameSite: "lax",
-  });
-
-  console.log({
-    httpOnly: true, // prevents JS from reading the cookie
-    secure: process.env.NODE_ENV === "production", // only over HTTPS in prod
-    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year in ms
-    path: "/", // cookie is valid for the entire site
-    sameSite: "lax",
-  });
-
-  console.log("Set cookies.");
-
-  return res.status(200).json(userData);
+  return res.status(200).json({ user: userData, token });
 });
 
 module.exports = loginRoute;
