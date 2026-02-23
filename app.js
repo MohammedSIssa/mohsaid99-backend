@@ -1,20 +1,11 @@
 require("dotenv").config();
 
 const cors = require("cors");
-// const cookieParser = require("cookie-parser");
 
 const express = require("express");
 const app = express();
 
-// app.use(cookieParser());
-// const corsOptions = {
-//   origin:
-//     process.env.NODE_ENV === "development"
-//       ? process.env.LOCALHOST_URI
-//       : process.env.GITHUB_URI,
-//   credentials: true,
-// };
-
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -31,24 +22,24 @@ app.get("/health", (req, res) => {
 });
 
 // mohsaid99 routes
-app.use("/mohsaid99", cors("*"), mohsaidRouter);
+app.use("/mohsaid99", mohsaidRouter);
 
 // refactored mohsaid99
-app.use("/new-mohsaid99", cors("*"), newMohsaid99);
+app.use("/new-mohsaid99", newMohsaid99);
 
 // new social media app routes
-app.use("/social-media-app", cors("*"), socialMediaRouter);
+app.use("/social-media-app", socialMediaRouter);
 
 // JSC router
-app.use("/jsc", cors("*"), JSCRouter);
+app.use("/jsc", JSCRouter);
 
 // Local Market
-app.use("/local-market", cors("*"), localMarketRouter);
+app.use("/local-market", localMarketRouter);
 
 // Repair Logs
-app.use("/repair-logs", cors("*"), repairsRouter);
+app.use("/repair-logs", repairsRouter);
 
-app.use("/modern-mohsaid99", cors("*"), modernMohsaid99Router);
+app.use("/modern-mohsaid99", modernMohsaid99Router);
 
 app.listen(3000, () => {
   console.log("http://localhost:3000");
