@@ -5,7 +5,7 @@ const ensureAdmin = (req, res, next) => {
   const adminApiKey = process.env.API_KEY;
 
   if (providedApiKey && providedApiKey !== adminApiKey) {
-    return res.status(401).json({ error: "Unauthorized" });
+    return res.status(401).json({ error: "NOT ADMIN" });
   }
   next();
 };

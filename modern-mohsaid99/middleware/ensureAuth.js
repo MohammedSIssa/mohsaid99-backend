@@ -2,13 +2,13 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const ensureAuth = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const token = req.cookies?.token;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  console.log("Received token:", token); // Debugging log
+
+  if (!token) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-
-  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, process.env.SECRET_KEY);

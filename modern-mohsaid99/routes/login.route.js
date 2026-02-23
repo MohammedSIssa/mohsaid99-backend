@@ -24,18 +24,35 @@ loginRoute.post("/", async (req, res) => {
   if (!matchPassword)
     return res.status(401).json({ message: "Incorrect password" });
 
-  console.log("SECRET KEY:", process.env.SECRET_KEY);
-
   const token = jwt.sign({ user: user.rows[0] }, process.env.SECRET_KEY, {
     expiresIn: "365d",
   });
 
-  console.log("Generated JWT:", token);
+  const userData = {
+    id: user.rows[0].id,
+    username: user.rows[0].username,
+    role: user.rows[0].role,
+  };
 
-  res.json({
-    token,
-    user: user.rows[0],
+  res.cookie("token", token, {
+    httpOnly: true, // prevents JS from reading the cookie
+    secure: process.env.NODE_ENV === "production", // only over HTTPS in prod
+    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year in ms
+    path: "/", // cookie is valid for the entire site
+    sameSite: "lax",
   });
+
+  console.log({
+    httpOnly: true, // prevents JS from reading the cookie
+    secure: process.env.NODE_ENV === "production", // only over HTTPS in prod
+    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year in ms
+    path: "/", // cookie is valid for the entire site
+    sameSite: "lax",
+  });
+
+  console.log("Set cookies.");
+
+  return res.status(200).json(userData);
 });
 
 module.exports = loginRoute;
