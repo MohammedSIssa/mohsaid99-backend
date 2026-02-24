@@ -11,12 +11,12 @@ storiesRouter.get("/", ensureAuth, async (req, res) => {
       // deal with postgres directly
       const stories = await req.pool.query(
         `SELECT * FROM stories 
-        WHERE "type" = $1 AND 
-        ${
-          type === "special" || type === "blog"
-            ? "EXTRACT(YEAR FROM to_date(year, 'DD/MM/YYYY')) = $2"
-            : "year = $2"
-        } ORDER BY count DESC`,
+   WHERE "type" = $1 
+   AND (
+        year = $2
+        OR RIGHT(year, 4) = $2
+   )
+   ORDER BY count DESC`,
         [type, year],
       );
 
