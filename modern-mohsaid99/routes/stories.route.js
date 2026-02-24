@@ -38,6 +38,8 @@ storiesRouter.get("/", ensureAuth, async (req, res) => {
         [type, year],
       );
 
+      await req.redisClient.set(cacheKey, JSON.stringify(stories.rows));
+
       return res.status(200).json(stories.rows);
     }
   } catch (err) {
