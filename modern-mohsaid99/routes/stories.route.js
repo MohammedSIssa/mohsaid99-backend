@@ -26,6 +26,19 @@ storiesRouter.get("/", ensureAuth, async (req, res) => {
       const cacheKey = `stories:${type}:${year}`;
       const cachedStories = await req.redisClient.get(cacheKey);
       if (cachedStories) return res.status(200).json(JSON.parse(cachedStories));
+
+      const stories = await req.pool.query(
+        `SELECT * FROM stories 
+        WHERE "type" = $1 AND 
+        ${
+          type === "special" || type === "blog"
+            ? "EXTRACT(YEAR FROM to_date(year, 'DD/MM/YYYY')) = $2"
+            : "year = $2"
+        } ORDER BY count DESC`,
+        [type, year],
+      );
+
+      return res.status(200).json(stories.rows);
     }
   } catch (err) {
     console.error(err);
