@@ -83,24 +83,37 @@ storiesRouter.post("/", ensureAuth, ensureAdmin, async (req, res) => {
 storiesRouter.put("/:id", ensureAuth, ensureAdmin, async (req, res) => {
   const { id } = req.params;
   const { title, type, summary, count, special, year } = req.body;
+  const { fromType } = req.query();
   try {
     if (process.env.NODE_ENV === "development") {
       // deal with postgres directly
       const updatedStory = await req.pool.query(
-        `UPDATE stories SET title = $1, summary = $2, count = $3, special = $4, year = $5, type = $6 WHERE id = $7 RETURNING *`,
+        `UPDATE stories 
+        SET title = $1, summary = $2, count = $3, special = $4, year = $5, type = $6 
+        WHERE id = $7 RETURNING *`,
         [title, summary, count, special, year, type, id],
       );
       return res.status(200).json(updatedStory.rows[0]);
     } else {
       // deal with redis/postgres
-      const cacheKey = `stories:${type}:${year}`;
+      const cacheYear =
+        type === "special" || type === "blog" ? year.split("/")[2] : year;
+      const cacheKey = `stories:${type}:${cacheYear}`;
+
+      // Deal with redis cache: Remove the from and to cache keys.
+      // Removes the old content and new content cached so new changes appear.
+      if (fromType !== type) {
+        const cacheKey2 = `stories:${fromType}:${cacheYear}`;
+        await req.redisClient.del(cacheKey2);
+      }
+
       const updatedStory = await req.pool.query(
         `UPDATE stories SET title = $1, summary = $2, count = $3, special = $4, year = $5, type = $6 WHERE id = $7 RETURNING *`,
         [title, summary, count, special, year, type, id],
       );
-      const cacheKey2 = `stories:${updatedStory.rows[0].type}:${updatedStory.rows[0].year}`;
+      const cacheKey3 = `stories:${updatedStory.rows[0].type}:${updatedStory.rows[0].year}`;
       await req.redisClient.del(cacheKey);
-      await req.redisClient.del(cacheKey2);
+      await req.redisClient.del(cacheKey3);
       return res.status(200).json(updatedStory.rows[0]);
     }
   } catch (err) {
