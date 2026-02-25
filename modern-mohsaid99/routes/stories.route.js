@@ -83,7 +83,7 @@ storiesRouter.post("/", ensureAuth, ensureAdmin, async (req, res) => {
 storiesRouter.put("/:id", ensureAuth, ensureAdmin, async (req, res) => {
   const { id } = req.params;
   const { title, type, summary, count, special, year } = req.body;
-  const { fromType } = req.query();
+  const { fromType } = req.query;
   try {
     if (process.env.NODE_ENV === "development") {
       // deal with postgres directly
