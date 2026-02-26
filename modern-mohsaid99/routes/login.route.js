@@ -34,6 +34,8 @@ loginRoute.post("/", async (req, res) => {
     role: user.rows[0].role,
   };
 
+  console.log({ userData });
+
   return res.status(200).json({ user: userData, token });
 });
 

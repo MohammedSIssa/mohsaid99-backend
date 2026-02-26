@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const ensureAdmin = (req, res, next) => {
-  if (process.env.NODE_ENV === "development") return next();
+  // if (process.env.NODE_ENV === "development") return next();
   const providedApiKey = req?.user?.user?.apiKey;
   const adminApiKey = process.env.API_KEY;
 

@@ -7,7 +7,12 @@ const ensureAuth = require("../middleware/ensureAuth");
 const authRouter = Router();
 
 authRouter.get("/verify", ensureAuth, (req, res) => {
-  res.json({ user: req.user });
+  const userData = {
+    id: req.user.user.id,
+    username: req.user.user.username,
+    role: req.user.user.role,
+  };
+  res.json({ user: userData });
 });
 
 module.exports = authRouter;
