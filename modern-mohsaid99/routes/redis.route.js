@@ -7,10 +7,13 @@ const redisRouter = Router();
 
 // Get all keys.
 redisRouter.get("/", ensureAuth, async (req, res) => {
-  if (process.env.NODE_ENV === "development")
-    return res.status(200).json({ message: "LOCALHOST" });
   try {
     const keys = [];
+
+    if(!req.redisClient) {
+      console.error("Redis client not available");
+      return res.status(200).json({ message: "Redis client not available" });
+    }
 
     for await (const key of req.redisClient.scanIterator()) {
       keys.push(key);
@@ -25,8 +28,6 @@ redisRouter.get("/", ensureAuth, async (req, res) => {
 
 // Get a specific key.
 redisRouter.get("/:key", ensureAuth, async (req, res) => {
-  if (process.env.NODE_ENV === "development")
-    return res.status(200).json({ message: "LOCALHOST" });
   const { key } = req.params;
   try {
     const cache = await req.redisClient.get(key);
@@ -39,8 +40,6 @@ redisRouter.get("/:key", ensureAuth, async (req, res) => {
 
 // Delete a key.
 redisRouter.delete("/:key", ensureAuth, ensureAdmin, async (req, res) => {
-  if (process.env.NODE_ENV === "development")
-    return res.status(200).json({ message: "LOCALHOST" });
   const { key } = req.params;
   try {
     await req.redisClient.del(key);

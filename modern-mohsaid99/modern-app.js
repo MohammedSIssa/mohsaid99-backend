@@ -28,7 +28,7 @@ if (process.env.NODE_ENV !== "development") {
     console.log("✅ Connected to Redis");
   })();
 } else {
-  redisClient = { get: async () => null, set: async () => {} };
+  redisClient = null;
 }
 
 const pool = new Pool({
