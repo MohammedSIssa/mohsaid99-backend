@@ -7,13 +7,20 @@ const postsRouter = require("express").Router();
 postsRouter.get("/", ensureAuth, async (req, res) => {
   try {
     const { type, count } = req.query;
-    if (process.env.NODE_ENV === "development") {
-      // use postgres
+
+    const getPosts = async () => {
       const posts = await req.pool.query(
-        "SELECT * FROM posts WHERE type = $1 AND storyid = $2 ORDER BY iat DESC",
+        `SELECT * FROM posts WHERE type = $1 AND storyid = $2 ${type === "week" ? "ORDER BY iat DESC" : ""}`,
         [type, count],
       );
-      res.status(200).json(posts.rows);
+
+      return posts.rows;
+    };
+
+    if (process.env.NODE_ENV === "development") {
+      // use postgres
+      const posts = await getPosts();
+      res.status(200).json(posts);
     } else {
       // use redis
       const cacheKey = `posts:${type}:${count}`;
@@ -21,12 +28,9 @@ postsRouter.get("/", ensureAuth, async (req, res) => {
       if (cachedPosts) {
         return res.status(200).json(JSON.parse(cachedPosts));
       }
-      const posts = await req.pool.query(
-        `SELECT * FROM posts WHERE type = $1 AND storyid = $2 ${type === "week" ? "ORDER BY iat DESC" : ""}`,
-        [type, count],
-      );
-      await req.redisClient.set(cacheKey, JSON.stringify(posts.rows));
-      res.status(200).json(posts.rows);
+      const posts = await getPosts();
+      await req.redisClient.set(cacheKey, JSON.stringify(posts));
+      res.status(200).json(posts);
     }
   } catch (err) {
     console.error(err);
