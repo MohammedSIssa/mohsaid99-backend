@@ -10,7 +10,7 @@ postsRouter.get("/", ensureAuth, async (req, res) => {
 
     const getPosts = async () => {
       const posts = await req.pool.query(
-        `SELECT * FROM posts WHERE type = $1 AND storyid = $2 ${type === "week" ? "ORDER BY iat DESC" : ""}`,
+        `SELECT * FROM posts WHERE type = $1 AND storyid = $2 ${type === "week" ? "ORDER BY iat DESC" : "ORDER BY iat ASC"}`,
         [type, count],
       );
 
@@ -20,6 +20,7 @@ postsRouter.get("/", ensureAuth, async (req, res) => {
     if (process.env.NODE_ENV === "development") {
       // use postgres
       const posts = await getPosts();
+      console.log({ posts, type, count });
       res.status(200).json(posts);
     } else {
       // use redis
