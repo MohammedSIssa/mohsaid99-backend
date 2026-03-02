@@ -22,7 +22,7 @@ postsRouter.get("/", ensureAuth, async (req, res) => {
         return res.status(200).json(JSON.parse(cachedPosts));
       }
       const posts = await req.pool.query(
-        "SELECT * FROM posts WHERE type = $1 AND storyid = $2 ORDER BY iat DESC",
+        `SELECT * FROM posts WHERE type = $1 AND storyid = $2 ${type === "week" ? "ORDER BY iat DESC" : ""}`,
         [type, count],
       );
       await req.redisClient.set(cacheKey, JSON.stringify(posts.rows));
