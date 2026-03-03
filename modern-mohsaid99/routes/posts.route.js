@@ -20,7 +20,6 @@ postsRouter.get("/", ensureAuth, async (req, res) => {
     if (process.env.NODE_ENV === "development") {
       // use postgres
       const posts = await getPosts();
-      console.log({ posts, type, count });
       res.status(200).json(posts);
     } else {
       // use redis

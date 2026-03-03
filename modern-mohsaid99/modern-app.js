@@ -44,6 +44,13 @@ modernMohsaid99Router.use((req, res, next) => {
   next();
 });
 
+modernMohsaid99Router.use((req, res, next) => {
+  console.log(
+    `${req.method} ${req.originalUrl}`,
+  );
+  next();
+});
+
 modernMohsaid99Router.get("/", (req, res) => {
   res.send("Modern Mohsaid99");
 });
