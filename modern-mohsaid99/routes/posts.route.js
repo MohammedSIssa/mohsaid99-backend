@@ -1,6 +1,7 @@
 require("dotenv").config();
 const ensureAuth = require("../middleware/ensureAuth");
 const ensureAdmin = require("../middleware/ensureAdmin");
+const md2html = require("../md2html");
 
 const postsRouter = require("express").Router();
 
@@ -40,15 +41,16 @@ postsRouter.get("/", ensureAuth, async (req, res) => {
 
 postsRouter.post("/", ensureAuth, ensureAdmin, async (req, res) => {
   const { title, body, type, storyid, special, secret, images, dir } = req.body;
+  const body_html = md2html(body);
   try {
     if (process.env.NODE_ENV === "development") {
       // direct postgres
       const newPost = await req.pool.query(
         `INSERT INTO posts 
-        (title, body, type, storyid, special, secret, images, dir) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+        (title, body, type, storyid, special, secret, images, dir, body_html) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
         RETURNING *`,
-        [title, body, type, storyid, special, secret, images, dir],
+        [title, body, type, storyid, special, secret, images, dir, body_html],
       );
       return res.status(201).json(newPost);
     } else {
@@ -72,15 +74,27 @@ postsRouter.post("/", ensureAuth, ensureAdmin, async (req, res) => {
 postsRouter.put("/:id", ensureAuth, ensureAdmin, async (req, res) => {
   const { id } = req.params;
   const { title, body, type, storyid, special, secret, images, dir } = req.body;
+  const body_html = md2html(body);
   try {
     if (process.env.NODE_ENV === "development") {
       // direct postgres
       const updatedPost = await req.pool.query(
         `UPDATE posts SET 
         title = $1, body = $2, type = $3, storyid = $4, 
-        special = $5, secret = $6, images = $7, dir = $8
-        WHERE id = $9 RETURNING *`,
-        [title, body, type, storyid, special, secret, images, dir, id],
+        special = $5, secret = $6, images = $7, dir = $8, body_html = $9
+        WHERE id = $10 RETURNING *`,
+        [
+          title,
+          body,
+          type,
+          storyid,
+          special,
+          secret,
+          images,
+          dir,
+          body_html,
+          id,
+        ],
       );
       return res.status(200).json(updatedPost);
     } else {
@@ -89,9 +103,20 @@ postsRouter.put("/:id", ensureAuth, ensureAdmin, async (req, res) => {
       const updatedPost = await req.pool.query(
         `UPDATE posts SET 
         title = $1, body = $2, type = $3, storyid = $4, 
-        special = $5, secret = $6, images = $7, dir = $8
-        WHERE id = $9 RETURNING *`,
-        [title, body, type, storyid, special, secret, images, dir, id],
+        special = $5, secret = $6, images = $7, dir = $8, body_html = $9
+        WHERE id = $10 RETURNING *`,
+        [
+          title,
+          body,
+          type,
+          storyid,
+          special,
+          secret,
+          images,
+          dir,
+          body_html,
+          id,
+        ],
       );
       const cacheKey2 = `posts:${updatedPost.rows[0].type}:${updatedPost.rows[0].storyid}`;
       await req.redisClient.del(cacheKey);
