@@ -14,7 +14,7 @@ async function makeBodyHTML() {
 
   const markdownPosts = posts.rows;
 
-  //   console.log({ ids: markdownPosts.map((post) => post.id) });
+  // console.log({ ids: markdownPosts.map((post) => post.id) });
 
   // Update body_html in DB
   for (const post of markdownPosts) {
