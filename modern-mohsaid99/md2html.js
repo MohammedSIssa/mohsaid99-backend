@@ -10,6 +10,7 @@ function md2html(md) {
       const decoded = code
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, "\"")
         .replace(/&amp;/g, "&");
 
       const result = hljs.highlight(decoded, { language: lang }).value;
