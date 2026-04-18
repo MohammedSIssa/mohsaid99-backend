@@ -11,11 +11,27 @@ function md2html(md) {
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
         .replace(/&quot;/g, "\"")
-        .replace(/&amp;/g, "&");
+        .replace(/&amp;/g, "&")
+        .replace(/&#39;/g, "'");
 
       const result = hljs.highlight(decoded, { language: lang }).value;
-
-      return `<pre><code class="hljs language-${lang}">${result}</code></pre>`;
+      
+      // Generate unique ID for this code block
+      const uniqueId = `code-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      return `<div class="code-box" data-language="${lang}">
+        <div class="code-header">
+          <button class="code-copy" onclick="
+            const code = document.getElementById('${uniqueId}').innerText;
+            navigator.clipboard.writeText(code);
+            this.classList.add('copied');
+            setTimeout(() => this.classList.remove('copied'), 2000);
+          ">نسخ</button>
+        </div>
+        <div class="code-content">
+          <pre><code id="${uniqueId}" class="hljs language-${lang}">${result}</code></pre>
+        </div>
+      </div>`;
     }
   );
 
